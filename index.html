@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Pilotaje V2</title>
+    <title>Calculadora Pilotaje V3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f0f2f5; padding-top: 20px; padding-bottom: 40px;}
@@ -21,7 +21,7 @@
     <div class="card">
         <div class="header-bg text-center">
             <h4 class="m-0">Calculadora Pilotaje</h4>
-            <small>Tarifa Multipar 2021 - V2.0</small>
+            <small>Tarifa Multipar 2021 - V3.0 (Redondeo UF)</small>
         </div>
         <div class="card-body">
             <form id="pilotajeForm">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="mt-2 text-end">
-                    <small class="text-muted">UF Calc: <span id="ufRaw">0</span> | <strong>UF Final: <span id="ufDisplay">0.00</span></strong></small>
+                    <small class="text-muted">Exacto: <span id="ufRaw">0</span> | <strong>UF Final (Redondeado): <span id="ufDisplay" class="text-primary">0</span></strong></small>
                 </div>
 
                 <h5 class="section-title">2. Ruta y Distancia</h5>
@@ -143,7 +143,7 @@
                 <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Desglose de Facturación</h6>
                 
                 <div class="d-flex justify-content-between mb-1">
-                    <span>Componente Fiscal:</span>
+                    <span>Componente Fiscal (<span id="txtUfUsada">0</span> UF):</span>
                     <span class="fw-bold" id="resFiscal">0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
@@ -188,7 +188,7 @@
 <script>
     // CONSTANTES
     const FACTOR_METROS_A_PIES = 3.28084;
-    const EXTRA_KM_MARTIN_GARCIA = 35.6; // Diferencia aprox Recalada-Km171 via MG vs Mitre
+    const EXTRA_KM_MARTIN_GARCIA = 35.6; 
     
     // LISTENERS PARA ACTUALIZAR INFO EN TIEMPO REAL
     document.getElementById('caladoMetros').addEventListener('input', function() {
@@ -206,9 +206,6 @@
         // Distancia base (valor absoluto de la diferencia de KMs)
         let distancia = Math.abs(kmOrigen - kmDestino);
         
-        // Logica Martin Garcia:
-        // Si la ruta es Martin Garcia Y el viaje conecta el Oceano (Recalada/Zona Comun) con el Río arriba
-        // Se suma la diferencia de recorrido.
         let esTramoRioMar = (kmOrigen < 60 || kmDestino < 60) && (kmOrigen > 100 || kmDestino > 100);
         
         if (ruta === 'martin' && esTramoRioMar) {
@@ -229,7 +226,7 @@
         const COEF_FISCAL = 8;
         const COEF_RECORRIDO = 12;
         const MIN_UF = 65;
-        const GASTO_FIJO_POR_PRACTICO = 1900 + 1900; // Traslado + Ordenanza
+        const GASTO_FIJO_POR_PRACTICO = 1900 + 1900; 
         const COSTO_DEMORA = 150;
         const ADICIONAL_URUGUAY = 1800;
 
@@ -246,11 +243,15 @@
         calcularDistancia();
         let km = parseFloat(document.getElementById('distancia').value) || 0;
 
-        // 3. UF
-        let ufCalc = (eslora * manga * puntal) / 800;
-        let ufFinal = Math.max(ufCalc, MIN_UF);
-        document.getElementById('ufRaw').innerText = ufCalc.toFixed(2);
-        document.getElementById('ufDisplay').innerText = ufFinal.toFixed(2);
+        [cite_start]// 3. UF (MODIFICADO: REDONDEO SIEMPRE HACIA ARRIBA) [cite: 15]
+        let ufCalcRaw = (eslora * manga * puntal) / 800;
+        let ufRedondeado = Math.ceil(ufCalcRaw); // Redondeo hacia arriba
+        
+        [cite_start]// Aplicar mínimo de 65 UF [cite: 38]
+        let ufFinal = Math.max(ufRedondeado, MIN_UF);
+
+        document.getElementById('ufRaw').innerText = ufCalcRaw.toFixed(2);
+        document.getElementById('ufDisplay').innerText = ufFinal; // Mostrar entero
 
         // 4. Componentes Básicos
         let compFiscal = (COEF_FISCAL * ufFinal) * practicos;
@@ -261,6 +262,7 @@
         let caladoPies = caladoM * FACTOR_METROS_A_PIES;
         let pctCalado = 0;
         
+        [cite_start]// Tabla de calado [cite: 28]
         if (caladoPies <= 28) pctCalado = 0;
         else if (caladoPies <= 30) pctCalado = 0.075;
         else if (caladoPies <= 32) pctCalado = 0.15;
@@ -277,6 +279,7 @@
         let total = subtotal + costoCalado + costoDemora + gastos + costoUruguay;
 
         // 7. Render
+        document.getElementById('txtUfUsada').innerText = ufFinal;
         document.getElementById('resFiscal').innerText = compFiscal.toFixed(2);
         document.getElementById('resRecorrido').innerText = compRecorrido.toFixed(2);
         document.getElementById('resBasico').innerText = subtotal.toFixed(2);
@@ -295,11 +298,9 @@
         document.getElementById('resTotal').innerText = total.toFixed(2);
         document.getElementById('resultados').classList.remove('d-none');
         
-        // Scroll hacia resultados
         document.getElementById('resultados').scrollIntoView({behavior: 'smooth'});
     }
     
-    // Inicializar distancia al cargar
     window.onload = calcularDistancia;
 </script>
 
