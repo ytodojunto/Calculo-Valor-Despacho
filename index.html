@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Tarifaria Pilotaje - Río Paraná</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding-top: 20px; }
+        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: none; }
+        .header-bg { background-color: #0d2e5c; color: white; }
+        .result-box { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 10px; }
+        .total-final { font-size: 1.5em; font-weight: bold; color: #0d2e5c; }
+    </style>
+</head>
+<body>
+
+<div class="container mb-5">
+    <div class="card">
+        <div class="card-header header-bg text-center">
+            <h4>Calculadora de Pilotaje</h4>
+            <small>Según Tarifa Multipar Enero 2021</small>
+        </div>
+        <div class="card-body">
+            <form id="pilotajeForm">
+                
+                <h5 class="border-bottom pb-2 mb-3">1. Datos del Buque (para UF)</h5>
+                <div class="row g-3">
+                    <div class="col-4">
+                        <label class="form-label">Eslora (m)</label>
+                        <input type="number" class="form-control" id="eslora" placeholder="0" required step="0.01">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Manga (m)</label>
+                        <input type="number" class="form-control" id="manga" placeholder="0" required step="0.01">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Puntal (m)</label>
+                        <input type="number" class="form-control" id="puntal" placeholder="0" required step="0.01">
+                    </div>
+                </div>
+                <div class="alert alert-info mt-2 py-1">
+                    <small>UF Calculada: <span id="ufDisplay">0.00</span> (Mínimo aplica: 65 UF)</small>
+                </div>
+
+                <h5 class="border-bottom pb-2 mb-3 mt-4">2. Datos del Viaje</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label">Distancia (Kilómetros)</label>
+                    <input type="number" class="form-control" id="distancia" placeholder="Ingrese Kms de tabla" required step="0.1">
+                    <div class="form-text">Ingrese la distancia según tabla de distancias oficial.</div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label">Cantidad de Prácticos</label>
+                        <input type="number" class="form-control" id="cantPracticos" value="1" min="1" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Demora (Horas)</label>
+                        <input type="number" class="form-control" id="demora" value="0" min="0" step="0.5">
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mb-3 mt-4">3. Calado (Pies)</h5>
+                <div class="mb-3">
+                    <label class="form-label">Calado Máximo</label>
+                    <input type="number" class="form-control" id="calado" placeholder="Ej: 32.05" step="0.01" required>
+                    <div class="form-text text-danger" id="caladoMensaje"></div>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="checkUruguay">
+                    <label class="form-check-label" for="checkUruguay">
+                        Incluye Traslado a Puertos Uruguayos (+ USD 1800)
+                    </label>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="calcularTarifa()">CALCULAR PRECIO</button>
+                </div>
+            </form>
+
+            <div id="resultados" class="mt-4 d-none">
+                <h5 class="border-bottom pb-2">Detalle de Liquidación (USD)</h5>
+                
+                <div class="result-box">
+                    <div class="d-flex justify-content-between">
+                        <span>Comp. Fiscal (CF x UF x Prácticos):</span>
+                        <span id="resFiscal">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Comp. Recorrido (CR x Km x Prácticos):</span>
+                        <span id="resRecorrido">0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>SUBTOTAL BÁSICO:</span>
+                        <span id="resBasico">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-danger">
+                        <span>Recargo por Calado (<span id="txtPorcentaje">0</span>%):</span>
+                        <span id="resCalado">0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span>Demora (<span id="txtHorasDemora">0</span> hs):</span>
+                        <span id="resDemora">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Gastos Traslados (x <span id="txtCantPracticos">1</span>):</span>
+                        <span id="resGastos">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between" id="rowUruguay">
+                        <span>Adicional Uruguay:</span>
+                        <span id="resUruguay">0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between total-final">
+                        <span>TOTAL A FACTURAR:</span>
+                        <span>USD <span id="resTotal">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcularTarifa() {
+        // 1. CONSTANTES SEGUN PDF
+        const COEF_FISCAL = 8;      // [cite: 16]
+        const COEF_RECORRIDO = 12;  // [cite: 19]
+        const MIN_UF = 65;          // 
+        const GASTO_TRASLADO = 1900; // 
+        const GASTO_ORDENANZA = 1900; // 
+        const COSTO_DEMORA = 150;   // 
+        const ADICIONAL_URUGUAY = 1800; // 
+
+        // 2. OBTENER VALORES DEL FORMULARIO
+        let eslora = parseFloat(document.getElementById('eslora').value) || 0;
+        let manga = parseFloat(document.getElementById('manga').value) || 0;
+        let puntal = parseFloat(document.getElementById('puntal').value) || 0;
+        let km = parseFloat(document.getElementById('distancia').value) || 0;
+        let practicos = parseInt(document.getElementById('cantPracticos').value) || 1;
+        let demoraHs = parseFloat(document.getElementById('demora').value) || 0;
+        let calado = parseFloat(document.getElementById('calado').value) || 0;
+        let isUruguay = document.getElementById('checkUruguay').checked;
+
+        // 3. CALCULO DE UNIDAD FISCAL (UF)
+        // UF: Unidades Fiscales = Eslora x Manga x Puntal / 800 
+        let ufCalculada = (eslora * manga * puntal) / 800;
+        
+        // Aplicar mínimo de 65 UF 
+        let ufFinal = Math.max(ufCalculada, MIN_UF);
+        
+        document.getElementById('ufDisplay').innerText = ufFinal.toFixed(2);
+
+        // 4. CALCULO DE COMPONENTES BASICOS
+        // [(CF* UF) * N° De Prácticos] [cite: 12]
+        let componenteFiscal = (COEF_FISCAL * ufFinal) * practicos;
+
+        // [(CR * KMS Recorridos) * N° De Prácticos] [cite: 12]
+        let componenteRecorrido = (COEF_RECORRIDO * km) * practicos;
+
+        let subtotalBasico = componenteFiscal + componenteRecorrido;
+
+        // 5. CALCULO DE RECARGO POR CALADO
+        // Tabla según 
+        let porcentajeCalado = 0;
+        if (calado <= 28) {
+            porcentajeCalado = 0;
+        } else if (calado > 28 && calado <= 30) {
+            porcentajeCalado = 0.075; // 7.5%
+        } else if (calado > 30 && calado <= 32) {
+            porcentajeCalado = 0.15;  // 15.0%
+        } else if (calado > 32 && calado <= 34) {
+            porcentajeCalado = 0.225; // 22.5%
+        } else if (calado > 34) {
+            porcentajeCalado = 0.30;  // 30.0%
+        }
+
+        let costoCalado = subtotalBasico * porcentajeCalado;
+
+        // 6. COSTOS FIJOS Y DEMORA
+        let costoDemora = demoraHs * COSTO_DEMORA;
+        
+        // Gastos: (Traslado + Ordenanza) * N° Practicos 
+        let gastosFijos = (GASTO_TRASLADO + GASTO_ORDENANZA) * practicos;
+        
+        let costoUruguay = isUruguay ? ADICIONAL_URUGUAY : 0;
+
+        // 7. TOTAL FINAL
+        let total = subtotalBasico + costoCalado + costoDemora + gastosFijos + costoUruguay;
+
+        // 8. MOSTRAR RESULTADOS
+        document.getElementById('resFiscal').innerText = componenteFiscal.toFixed(2);
+        document.getElementById('resRecorrido').innerText = componenteRecorrido.toFixed(2);
+        document.getElementById('resBasico').innerText = subtotalBasico.toFixed(2);
+        
+        document.getElementById('txtPorcentaje').innerText = (porcentajeCalado * 100).toFixed(1);
+        document.getElementById('resCalado').innerText = costoCalado.toFixed(2);
+        
+        document.getElementById('txtHorasDemora').innerText = demoraHs;
+        document.getElementById('resDemora').innerText = costoDemora.toFixed(2);
+        
+        document.getElementById('txtCantPracticos').innerText = practicos;
+        document.getElementById('resGastos').innerText = gastosFijos.toFixed(2);
+        
+        document.getElementById('resUruguay').innerText = costoUruguay.toFixed(2);
+        document.getElementById('resTotal').innerText = total.toFixed(2);
+
+        document.getElementById('resultados').classList.remove('d-none');
+    }
+</script>
+
+</body>
+</html>
