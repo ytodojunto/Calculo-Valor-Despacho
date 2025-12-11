@@ -3,342 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Pilotaje 2024 (V7)</title>
+    <title>Calculadora Pilotaje 2024 (Fix)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding-top: 15px; padding-bottom: 80px; font-family: sans-serif; }
-        .card { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 12px; }
-        /* Rojo Intenso Institucional 2024 */
-        .header-bg { background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; }
-        .section-title { color: #b91c1c; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; margin: 20px 0 10px 0; padding-bottom: 5px; }
-        
-        .result-container { background-color: #ffffff; border: 2px solid #e5e7eb; border-left: 5px solid #b91c1c; padding: 20px; border-radius: 8px; margin-top: 25px; }
-        .total-price { font-size: 2.2rem; font-weight: 800; color: #b91c1c; display: block; line-height: 1.1; }
-        
-        .btn-action { background-color: #b91c1c; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-action:active { background-color: #7f1d1d; transform: scale(0.98); }
-        
-        .form-control, .form-select { padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; }
-        .form-control:focus { border-color: #b91c1c; box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.2); }
+        body { background-color: #eef2f7; padding-top: 15px; padding-bottom: 50px; font-family: sans-serif; }
+        .card { border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 10px; }
+        .header-bg { background: linear-gradient(to right, #8B0000, #B22222); color: white; border-radius: 10px 10px 0 0; padding: 15px; }
+        .section-label { color: #8B0000; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; border-bottom: 2px solid #dde2e6; padding-bottom: 5px; margin: 15px 0 10px 0; }
+        .result-box { background-color: #fff; border: 1px solid #ced4da; padding: 15px; border-radius: 8px; border-left: 5px solid #8B0000; }
+        .total-final { font-size: 1.8em; font-weight: 800; color: #8B0000; }
+        .btn-primary { background-color: #8B0000; border: none; }
+        .btn-primary:hover { background-color: #5e0000; }
+        .btn-outline-primary { color: #8B0000; border-color: #8B0000; }
+        .btn-check:checked + .btn-outline-primary { background-color: #8B0000; border-color: #8B0000; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container mb-5" style="max-width: 600px;">
+<div class="container mb-5" style="max-width: 650px;">
     <div class="card">
         <div class="header-bg text-center">
-            <h3 class="m-0 fw-bold">Tarifa Pilotaje</h3>
-            [cite_start]<div style="font-size: 0.9rem; opacity: 0.9;">Vigencia Abril 2024 [cite: 3]</div>
+            <h4 class="m-0 fw-bold">Tarifa Pilotaje 2024</h4>
+            <small>Vigencia Abril 2024 - Multipar S.A.</small>
         </div>
-        <div class="card-body p-4">
-            
-            <div class="section-title">1. Coeficiente (UF)</div>
-            
-            <div class="btn-group w-100 mb-3" role="group">
-                <input type="radio" class="btn-check" name="modoUf" id="optMedidas" checked onclick="setMode('medidas')">
-                <label class="btn btn-outline-danger" for="optMedidas">Por Medidas</label>
-
-                <input type="radio" class="btn-check" name="modoUf" id="optDirecto" onclick="setMode('directo')">
-                <label class="btn btn-outline-danger" for="optDirecto">UF Directo</label>
-            </div>
-
-            <div id="panelMedidas">
-                <div class="row g-2">
-                    <div class="col-4">
-                        <label class="small text-muted fw-bold">Eslora</label>
-                        <input type="number" class="form-control" id="inEslora" placeholder="m">
-                    </div>
-                    <div class="col-4">
-                        <label class="small text-muted fw-bold">Manga</label>
-                        <input type="number" class="form-control" id="inManga" placeholder="m">
-                    </div>
-                    <div class="col-4">
-                        <label class="small text-muted fw-bold">Puntal</label>
-                        <input type="number" class="form-control" id="inPuntal" placeholder="m">
-                    </div>
-                </div>
-            </div>
-
-            <div id="panelDirecto" class="d-none">
-                <div class="input-group">
-                    <span class="input-group-text fw-bold">UF</span>
-                    <input type="number" class="form-control fw-bold" id="inUfDirecto" placeholder="Ej: 115">
-                </div>
-            </div>
-
-            <div class="text-end mt-2">
-                [cite_start]<small class="text-secondary">Coeficiente: <strong class="fs-5 text-dark" id="displayUF">0</strong> (Mín 65 [cite: 36])</small>
-            </div>
-
-            <div class="section-title">2. Recorrido</div>
-
-            <div class="btn-group w-100 btn-group-sm mb-3">
-                <input type="radio" class="btn-check" name="ruta" id="rutaMitre" checked onclick="calcDist()">
-                <label class="btn btn-outline-secondary" for="rutaMitre">Vía Mitre</label>
+        <div class="card-body p-3">
+            <form id="pilotajeForm">
                 
-                <input type="radio" class="btn-check" name="ruta" id="rutaMartin" onclick="calcDist()">
-                <label class="btn btn-outline-secondary" for="rutaMartin">Vía M. García</label>
-            </div>
+                <div class="section-label">1. Coeficiente Fiscal (UF)</div>
+                
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="modoUf" id="modeDim" value="dim" checked onclick="window.toggleUfMode()">
+                        <label class="btn btn-outline-primary" for="modeDim">Medidas</label>
 
-            <div class="row g-2">
-                <div class="col-12">
-                    <label class="small fw-bold text-muted">Origen</label>
-                    <select class="form-select fw-bold" id="selOrigen" onchange="calcDist()"></select>
+                        <input type="radio" class="btn-check" name="modoUf" id="modeDirect" value="direct" onclick="window.toggleUfMode()">
+                        <label class="btn btn-outline-primary" for="modeDirect">Coef. Directo</label>
+                    </div>
                 </div>
-                <div class="col-12">
-                    <label class="small fw-bold text-muted">Destino</label>
-                    <select class="form-select fw-bold" id="selDestino" onchange="calcDist()"></select>
+
+                <div id="boxDimensiones">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Eslora</label>
+                            <input type="number" class="form-control" id="eslora" placeholder="m" step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Manga</label>
+                            <input type="number" class="form-control" id="manga" placeholder="m" step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Puntal</label>
+                            <input type="number" class="form-control" id="puntal" placeholder="m" step="0.01">
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="input-group mt-3">
-                <span class="input-group-text bg-light fw-bold text-danger">Distancia</span>
-                <input type="text" class="form-control text-end fw-bold text-danger fs-5" id="displayKm" readonly value="0.0">
-                <span class="input-group-text bg-light">KM</span>
-            </div>
-            <div id="avisoRuta" class="text-center small mt-1 text-muted fst-italic"></div>
-
-            <div class="section-title">3. Variables</div>
-            
-            <div class="row g-2">
-                <div class="col-6">
-                    <label class="small fw-bold">Calado (m)</label>
-                    <input type="number" class="form-control" id="inCalado" placeholder="9.80" oninput="showPies()">
-                    <div class="small text-primary mt-1 fw-bold" id="displayPies">0.00 pies</div>
+                <div id="boxDirecto" class="d-none">
+                    <div class="input-group">
+                        <span class="input-group-text">UF</span>
+                        <input type="number" class="form-control fw-bold" id="ufDirectInput" placeholder="Ingrese Coeficiente">
+                    </div>
                 </div>
-                <div class="col-3">
-                    <label class="small fw-bold">Prácticos</label>
-                    <input type="number" class="form-control text-center fw-bold" id="inPracticos" value="1">
+
+                <div class="mt-2 text-end">
+                    <small class="text-secondary">Coef. Aplicado: <strong class="text-dark fs-5"><span id="ufDisplay">0</span></strong> <span class="badge bg-secondary">Mín 65</span></small>
                 </div>
-                <div class="col-3">
-                    <label class="small fw-bold">Demora</label>
-                    <input type="number" class="form-control text-center fw-bold" id="inDemora" value="0">
+
+                <div class="section-label">2. Recorrido (KM Río)</div>
+                
+                <div class="mb-3">
+                    <div class="btn-group w-100 btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="ruta" id="rutaMitre" value="mitre" checked onclick="window.calcularDistancia()">
+                        <label class="btn btn-outline-primary" for="rutaMitre">Vía Mitre</label>
+                        
+                        <input type="radio" class="btn-check" name="ruta" id="rutaMartin" value="martin" onclick="window.calcularDistancia()">
+                        <label class="btn btn-outline-primary" for="rutaMartin">Vía M. García</label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-check mt-3 p-2 border rounded bg-light">
-                <input class="form-check-input ms-1" type="checkbox" id="checkUru">
-                <label class="form-check-label fw-bold ms-2" for="checkUru">
-                    [cite_start]Puerto Uruguayo (+USD 2.500 [cite: 83])
-                </label>
-            </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Origen</label>
+                        <select class="form-select fw-bold" id="puertoOrigen" onchange="window.calcularDistancia()">
+                            <option value="0">Cargando puertos...</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Destino</label>
+                        <select class="form-select fw-bold" id="puertoDestino" onchange="window.calcularDistancia()">
+                            <option value="0">Cargando puertos...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-group mb-2 mt-3">
+                    <span class="input-group-text bg-light text-danger fw-bold">Distancia</span>
+                    <input type="number" class="form-control fw-bold text-end fs-5 text-danger" id="distancia" readonly>
+                    <span class="input-group-text bg-light">KM</span>
+                </div>
+                <div id="rutaMsg" class="text-center small mb-2 fst-italic text-muted"></div>
 
-            <div class="mt-4">
-                <button type="button" class="btn-action" onclick="calcularAhora()">CALCULAR TOTAL</button>
-            </div>
+                <div class="section-label">3. Variables</div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label small fw-bold">Calado (M)</label>
+                        <input type="number" class="form-control" id="caladoMetros" placeholder="Ej: 9.80" step="0.01" oninput="window.actualizarPies()">
+                        <div class="form-text small" id="caladoPiesInfo" style="font-size: 0.7rem;">0.00'</div>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label small fw-bold">Práct.</label>
+                        <input type="number" class="form-control text-center px-1" id="cantPracticos" value="1" min="1">
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label small fw-bold">Demora</label>
+                        <input type="number" class="form-control text-center px-1" id="demora" value="0" step="0.5">
+                    </div>
+                </div>
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="checkUruguay">
+                    <label class="form-check-label small fw-bold" for="checkUruguay">
+                        Adic. Pto Uruguayo (+USD 2.500)
+                    </label>
+                </div>
 
-            <div id="boxResultados" class="result-container d-none">
-                <div class="text-end fst-italic text-muted small mb-2" id="fechaHora"></div>
+                <div class="d-grid mt-4">
+                    <button type="button" class="btn btn-primary py-3 fw-bold shadow" onclick="window.calcularTarifa()">CALCULAR TOTAL</button>
+                </div>
+            </form>
+
+            <div id="resultados" class="result-box d-none mt-4">
+                <h6 class="text-secondary text-uppercase mb-3 small">Liquidación Estimada (USD)</h6>
                 
                 <div class="d-flex justify-content-between mb-1">
-                    [cite_start]<span>Fiscal (<span id="outUF">0</span> UF x $8 [cite: 16]):</span>
-                    <span class="fw-bold" id="outFiscal">0.00</span>
+                    <span>Fiscal (<span id="txtUfUsada">0</span> UF x $8):</span>
+                    <span class="fw-bold" id="resFiscal">0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    [cite_start]<span>Recorrido (<span id="outKM">0</span> km x $12 [cite: 18]):</span>
-                    <span class="fw-bold" id="outRecorrido">0.00</span>
+                    <span>Recorrido (<span id="txtKmUsado">0</span> km x $12):</span>
+                    <span class="fw-bold" id="resRecorrido">0.00</span>
+                </div>
+                
+                <div class="py-2 my-2 bg-light border-top border-bottom d-flex justify-content-between">
+                    <span class="fw-bold text-dark">SUBTOTAL BÁSICO:</span>
+                    <span class="fw-bold text-dark" id="resBasico">0.00</span>
                 </div>
 
-                <div class="border-top border-bottom py-2 my-2 bg-light d-flex justify-content-between fw-bold">
-                    <span>SUBTOTAL BÁSICO:</span>
-                    <span id="outBasico">0.00</span>
-                </div>
-
-                <div class="d-flex justify-content-between text-danger mb-1">
-                    [cite_start]<span>+ Calado (<span id="outPctCalado">0</span>% [cite: 26]):</span>
-                    <span id="outMontoCalado">0.00</span>
+                <div class="d-flex justify-content-between mb-1 text-danger">
+                    <span>+ Recargo Calado (<span id="txtPorcentaje">0</span>%):</span>
+                    <span id="resCalado">0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                    [cite_start]<span>+ Demora (<span id="outHsDemora">0</span> hs [cite: 29]):</span>
-                    <span id="outMontoDemora">0.00</span>
+                    <span>+ Demora (<span id="txtHorasDemora">0</span> hs):</span>
+                    <span id="resDemora">0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                    [cite_start]<span>+ Gastos Fijos (x<span id="outCantPrac">1</span>)[cite: 81, 82]:</span>
-                    <span id="outGastos">0.00</span>
+                    <span>+ Gastos (x<span id="txtCantPracticos">1</span>):</span>
+                    <span id="resGastos">0.00</span>
                 </div>
-                <div class="d-flex justify-content-between mb-1" id="rowUru">
-                    <span>+ Adic. [cite_start]Uruguay[cite: 83]:</span>
-                    <span id="outMontoUru">0.00</span>
+                <div class="d-flex justify-content-between mb-1" id="rowUruguay">
+                    <span>+ Adicional Uruguay:</span>
+                    <span id="resUruguay">0.00</span>
                 </div>
 
                 <hr>
-                <div class="text-center">
-                    <span class="text-uppercase fw-bold text-secondary">Total a Facturar</span>
-                    <span class="total-price">USD <span id="outTotal">0.00</span></span>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="text-uppercase fw-bold text-secondary">Total:</span>
+                    <span class="total-final">USD <span id="resTotal">0.00</span></span>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    // --- DATOS PUERTOS (KM REALES) ---
-    const listadoPuertos = [
-        {k:14, n:"ZEYA / Recalada (Ref Km 14)"},
-        {k:52, n:"Zona Común / La Plata (Km 52)"},
-        {k:60, n:"Escobar (Km 60)"},
-        {k:94, n:"Campana (Km 94)"},
-        {k:110, n:"Zárate (Km 110)"},
-        {k:123, n:"Las Palmas (Km 123)"},
-        {k:132, n:"Delta Dock (Km 132)"},
-        {k:171, n:"Km 171 / Brazo Largo"},
-        {k:178.5, n:"Del Guazú (Km 178.5)"},
-        {k:210, n:"Ibicuy (Km 210)"},
-        {k:273.5, n:"San Pedro (Km 273.5)"},
-        {k:325, n:"Ramallo (Km 325)"},
-        {k:330, n:"Bunge / Martin (Km 330)"},
-        {k:344, n:"San Nicolás (Km 344)"},
-        {k:362, n:"Villa Constitución (Km 362)"},
-        {k:395, n:"Gral. Lagos (Km 395)"},
-        {k:408, n:"V. Gdor. Gálvez (Km 408)"},
-        {k:412, n:"Rosario / Cargill (Km 412)"},
-        {k:420, n:"Rosario Norte (Km 420)"},
-        {k:443, n:"San Lorenzo (Km 443)"},
-        {k:448, n:"San Lorenzo Desemb. (Km 448)"},
-        {k:455, n:"San Martín (Km 455)"},
-        {k:460, n:"Timbúes (Km 460)"},
-        {k:535, n:"Diamante (Ref Km 535)"},
-        {k:583, n:"Santa Fe (Ref Km 583)"}
+    // --- DATOS Y CONSTANTES ---
+    const portsDB = [
+        { km: 14, name: "ZEYA / Recalada (Ref Km 14)" },
+        { km: 52, name: "Zona Común / La Plata (Km 52)" },
+        { km: 60, name: "Escobar (Km 60)" },
+        { km: 94, name: "Campana (Km 94)" },
+        { km: 110, name: "Zárate (Km 110)" },
+        { km: 123, name: "Las Palmas (Km 123)" },
+        { km: 132, name: "Delta Dock (Km 132)" },
+        { km: 171, name: "Km 171 / Brazo Largo" },
+        { km: 178.5, name: "Del Guazú (Km 178.5)" },
+        { km: 210, name: "Ibicuy (Km 210)" },
+        { km: 273.5, name: "San Pedro (Km 273.5)" },
+        { km: 325, name: "Ramallo (Km 325)" },
+        { km: 330, name: "Bunge / Martin (Km 330)" },
+        { km: 344, name: "San Nicolás (Km 344)" },
+        { km: 362, name: "Villa Constitución (Km 362)" },
+        { km: 395, name: "Gral. Lagos (Km 395)" },
+        { km: 408, name: "V. Gdor. Gálvez (Km 408)" },
+        { km: 412, name: "Rosario / Cargill (Km 412)" },
+        { km: 420, name: "Rosario Norte (Km 420)" },
+        { km: 443, name: "San Lorenzo (Km 443)" },
+        { km: 448, name: "San Lorenzo Desemb. (Km 448)" },
+        { km: 455, name: "San Martín (Km 455)" },
+        { km: 460, name: "Timbúes (Km 460)" },
+        { km: 535, name: "Diamante (Ref Km 535)" },
+        { km: 583, name: "Santa Fe (Ref Km 583)" }
     ];
 
-    // --- FUNCIONES ---
-    function init() {
-        const s1 = document.getElementById('selOrigen');
-        const s2 = document.getElementById('selDestino');
-        
-        // Cargar puertos
-        listadoPuertos.forEach(p => {
-            let o1 = document.createElement('option');
-            o1.value = p.k; o1.text = p.n;
-            s1.appendChild(o1);
-            
-            let o2 = document.createElement('option');
-            o2.value = p.k; o2.text = p.n;
-            s2.appendChild(o2);
-        });
+    const FACTOR_METROS_A_PIES = 3.28084;
+    const EXTRA_KM_MARTIN_GARCIA = 35.6; 
 
-        // Valores por defecto
-        s1.value = 443; // SL
-        s2.value = 14;  // Recalada
-        calcDist();
-    }
+    // --- FUNCIONES GLOBALIZADAS (WINDOW) ---
 
-    function setMode(mode) {
-        if(mode === 'medidas'){
-            document.getElementById('panelMedidas').classList.remove('d-none');
-            document.getElementById('panelDirecto').classList.add('d-none');
+    window.toggleUfMode = function() {
+        // Aseguramos que existan los elementos antes de acceder
+        const modeDim = document.getElementById('modeDim');
+        const boxDim = document.getElementById('boxDimensiones');
+        const boxDirect = document.getElementById('boxDirecto');
+
+        if (!modeDim || !boxDim || !boxDirect) return;
+
+        if (modeDim.checked) {
+            boxDim.classList.remove('d-none');
+            boxDirect.classList.add('d-none');
         } else {
-            document.getElementById('panelMedidas').classList.add('d-none');
-            document.getElementById('panelDirecto').classList.remove('d-none');
+            boxDim.classList.add('d-none');
+            boxDirect.classList.remove('d-none');
         }
-    }
+    };
 
-    function showPies() {
-        let m = parseFloat(document.getElementById('inCalado').value) || 0;
-        let ft = m * 3.28084;
-        document.getElementById('displayPies').innerText = ft.toFixed(2) + " pies";
-    }
-
-    function calcDist() {
-        let k1 = parseFloat(document.getElementById('selOrigen').value);
-        let k2 = parseFloat(document.getElementById('selDestino').value);
-        let dist = Math.abs(k1 - k2);
+    window.actualizarPies = function() {
+        const inputM = document.getElementById('caladoMetros');
+        const display = document.getElementById('caladoPiesInfo');
+        if(!inputM || !display) return;
         
-        // Logica Martin Garcia
-        let isMG = document.getElementById('rutaMartin').checked;
-        let cruceCritico = (k1 < 60 || k2 < 60) && (k1 > 100 || k2 > 100);
+        let m = parseFloat(inputM.value) || 0;
+        let ft = m * FACTOR_METROS_A_PIES;
+        display.innerText = `Equiv: ${ft.toFixed(2)}'`;
+    };
 
-        if(isMG && cruceCritico) {
-            dist += 35.6;
-            document.getElementById('avisoRuta').innerText = "+35.6 km por Martín García";
+    window.calcularDistancia = function() {
+        const pOrigen = document.getElementById('puertoOrigen');
+        const pDestino = document.getElementById('puertoDestino');
+        const inputDist = document.getElementById('distancia');
+        const msg = document.getElementById('rutaMsg');
+        const rutaMartin = document.getElementById('rutaMartin');
+
+        if(!pOrigen || !pDestino || !inputDist) return;
+
+        let kmOrigen = parseFloat(pOrigen.value) || 0;
+        let kmDestino = parseFloat(pDestino.value) || 0;
+        
+        // Determinar ruta
+        let esMartinGarcia = false;
+        if(rutaMartin && rutaMartin.checked) esMartinGarcia = true;
+
+        let distancia = Math.abs(kmOrigen - kmDestino);
+
+        // Lógica Martin Garcia
+        let esTramoRioMar = (kmOrigen < 60 || kmDestino < 60) && (kmOrigen > 100 || kmDestino > 100);
+
+        if (esMartinGarcia && esTramoRioMar) {
+            distancia += EXTRA_KM_MARTIN_GARCIA;
+            if(msg) msg.innerHTML = "<span class='text-danger fw-bold'>+35.6 km (Vía Martín García)</span>";
         } else {
-            document.getElementById('avisoRuta').innerText = "";
+            if(msg) msg.innerText = "";
         }
 
-        document.getElementById('displayKm').value = dist.toFixed(1);
-    }
+        inputDist.value = distancia.toFixed(1);
+    };
 
-    function calcularAhora() {
-        try {
-            // 1. Obtener datos
-            let practicos = parseInt(document.getElementById('inPracticos').value) || 1;
-            let demora = parseFloat(document.getElementById('inDemora').value) || 0;
-            let caladoM = parseFloat(document.getElementById('inCalado').value) || 0;
-            let esUru = document.getElementById('checkUru').checked;
-            
-            calcDist(); // Asegurar distancia actualizada
-            let km = parseFloat(document.getElementById('displayKm').value) || 0;
+    window.calcularTarifa = function() {
+        [cite_start]// TARIFAS 2024 (Abril) [cite: 1, 4, 16, 18, 26, 81, 82, 83]
+        const COEF_FISCAL = 8;          [cite_start]// [cite: 16]
+        const COEF_RECORRIDO = 12;      [cite_start]// [cite: 18]
+        const MIN_UF = 65;              [cite_start]// [cite: 36]
+        
+        // Gastos: Traslado 2490 + Ordenanza 2490 = 4980 por práctico
+        const GASTO_FIJO_POR_PRACTICO = 2490 + 2490; [cite_start]// [cite: 81, 82]
+        
+        const COSTO_DEMORA = 150;       [cite_start]// [cite: 29]
+        const ADICIONAL_URUGUAY = 2500; [cite_start]// [cite: 83]
 
-            // 2. Calcular UF
-            let uf = 0;
-            if(document.getElementById('optMedidas').checked) {
-                let e = parseFloat(document.getElementById('inEslora').value) || 0;
-                let m = parseFloat(document.getElementById('inManga').value) || 0;
-                let p = parseFloat(document.getElementById('inPuntal').value) || 0;
-                uf = Math.ceil((e * m * p) / 800);
-            } else {
-                uf = Math.ceil(parseFloat(document.getElementById('inUfDirecto').value) || 0);
-            }
-            if(uf < 65) uf = 65; [cite_start]// Minimo UF [cite: 36]
-            document.getElementById('displayUF').innerText = uf;
+        // Inputs
+        const elPracticos = document.getElementById('cantPracticos');
+        const elDemora = document.getElementById('demora');
+        const elCalado = document.getElementById('caladoMetros');
+        const elUruguay = document.getElementById('checkUruguay');
+        
+        let practicos = elPracticos ? (parseInt(elPracticos.value) || 1) : 1;
+        let demoraHs = elDemora ? (parseFloat(elDemora.value) || 0) : 0;
+        let caladoM = elCalado ? (parseFloat(elCalado.value) || 0) : 0;
+        let isUruguay = elUruguay ? elUruguay.checked : false;
 
-            [cite_start]// 3. Costos [cite: 16, 18]
-            let cFiscal = (8 * uf) * practicos;
-            let cRecorrido = (12 * km) * practicos;
-            let subtotal = cFiscal + cRecorrido;
+        window.calcularDistancia(); 
+        const elDist = document.getElementById('distancia');
+        let km = elDist ? (parseFloat(elDist.value) || 0) : 0;
 
-            [cite_start]// 4. Calado [cite: 26]
-            let caladoFt = caladoM * 3.28084;
-            let pct = 0;
-            if(caladoFt > 28) pct = 0.075;
-            if(caladoFt > 30) pct = 0.15;
-            if(caladoFt > 32) pct = 0.225;
-            if(caladoFt > 34) pct = 0.30;
-            let montoCalado = subtotal * pct;
-
-            [cite_start]// 5. Extras [cite: 29, 81, 82, 83]
-            let montoDemora = demora * 150;
-            let gastos = (2490 + 2490) * practicos; // 4980 por practico
-            let montoUru = esUru ? 2500 : 0;
-
-            let total = subtotal + montoCalado + montoDemora + gastos + montoUru;
-
-            // 6. Mostrar (Salida)
-            document.getElementById('outUF').innerText = uf;
-            document.getElementById('outFiscal').innerText = cFiscal.toFixed(2);
-            document.getElementById('outKM').innerText = km.toFixed(1);
-            document.getElementById('outRecorrido').innerText = cRecorrido.toFixed(2);
-            document.getElementById('outBasico').innerText = subtotal.toFixed(2);
-            
-            document.getElementById('outPctCalado').innerText = (pct*100).toFixed(1);
-            document.getElementById('outMontoCalado').innerText = montoCalado.toFixed(2);
-            
-            document.getElementById('outHsDemora').innerText = demora;
-            document.getElementById('outMontoDemora').innerText = montoDemora.toFixed(2);
-            
-            document.getElementById('outCantPrac').innerText = practicos;
-            document.getElementById('outGastos').innerText = gastos.toFixed(2);
-            
-            document.getElementById('outMontoUru').innerText = montoUru.toFixed(2);
-            document.getElementById('outTotal').innerText = total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-            // Fecha
-            let hoy = new Date();
-            document.getElementById('fechaHora').innerText = hoy.toLocaleString();
-
-            // Mostrar caja
-            document.getElementById('boxResultados').classList.remove('d-none');
-            document.getElementById('boxResultados').scrollIntoView({behavior: 'smooth'});
-
-        } catch (error) {
-            alert("Error al calcular: " + error.message);
+        // Calculo UF
+        let ufFinal = 0;
+        const modeDim = document.getElementById('modeDim');
+        
+        if (modeDim && modeDim.checked) {
+            const e = parseFloat(document.getElementById('eslora').value) || 0;
+            const m = parseFloat(document.getElementById('manga').value) || 0;
+            const p = parseFloat(document.getElementById('puntal').value) || 0;
+            let ufRaw = (e * m * p) / 800; [cite_start]// [cite: 15, 17]
+            ufFinal = Math.ceil(ufRaw);
+        } else {
+            let direct = parseFloat(document.getElementById('ufDirectInput').value) || 0;
+            ufFinal = Math.ceil(direct);
         }
-    }
+        
+        ufFinal = Math.max(ufFinal, MIN_UF);
+        document.getElementById('ufDisplay').innerText = ufFinal;
 
-    // Iniciar al cargar
-    window.onload = init;
+        // Componentes Básicos
+        let compFiscal = (COEF_FISCAL * ufFinal) * practicos;
+        let compRecorrido = (COEF_RECORRIDO * km) * practicos;
+        let subtotal = compFiscal + compRecorrido;
+
+        [cite_start]// Calado (Tabla % se mantiene) [cite: 26]
+        let caladoPies = caladoM * FACTOR_METROS_A_PIES;
+        let pctCalado = 0;
+        
+        if (caladoPies <= 28) pctCalado = 0;
+        else if (caladoPies <= 30) pctCalado = 0.075;
+        else if (caladoPies <= 32) pctCalado = 0.15;
+        else if (caladoPies <= 34) pctCalado = 0.225;
+        else pctCalado = 0.30; // Mayor a 34
+
+        let costoCalado = subtotal * pctCalado;
+
+        // Extras
+        let costoDemora = demoraHs * COSTO_DEMORA;
+        let gastos = GASTO_FIJO_POR_PRACTICO * practicos;
+        let costoUruguay = isUruguay ? ADICIONAL_URUGUAY : 0;
+
+        let total = subtotal + costoCalado + costoDemora + gastos + costoUruguay;
+
+        // Renderizado
+        document.getElementById('txtUfUsada').innerText = ufFinal;
+        document.getElementById('txtKmUsado').innerText = km.toFixed(1);
+        
+        document.getElementById('resFiscal').innerText = compFiscal.toFixed(2);
+        document.getElementById('resRecorrido').innerText = compRecorrido.toFixed(2);
+        document.getElementById('resBasico').innerText = subtotal.toFixed(2);
+        
+        document.getElementById('txtPorcentaje').innerText = (pctCalado * 100).toFixed(1);
+        document.getElementById('resCalado').innerText = costoCalado.toFixed(2);
+        
+        document.getElementById('txtHorasDemora').innerText = demoraHs;
+        document.getElementById('resDemora').innerText = costoDemora.toFixed(2);
+        
+        document.getElementById('txtCantPracticos').innerText = practicos;
+        document.getElementById('resGastos').innerText = gastos.toFixed(2);
+        
+        document.getElementById('resUruguay').innerText = costoUruguay.toFixed(2);
+        document.getElementById('resTotal').innerText = total.toFixed(2);
+
+        const resBox = document.getElementById('resultados');
+        if(resBox) {
+            resBox.classList.remove('d-none');
+            resBox.scrollIntoView({behavior: 'smooth'});
+        }
+    };
+
+    // --- INICIALIZADOR SEGURO ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const selOrigen = document.getElementById('puertoOrigen');
+        const selDestino = document.getElementById('puertoDestino');
+        
+        if (selOrigen && selDestino) {
+            selOrigen.innerHTML = "";
+            selDestino.innerHTML = "";
+
+            portsDB.forEach(p => {
+                let optionO = new Option(p.name, p.km);
+                let optionD = new Option(p.name, p.km);
+                selOrigen.add(optionO);
+                selDestino.add(optionD);
+            });
+
+            // Valores por defecto: San Lorenzo (443) -> Zeya (14)
+            selOrigen.value = 443; 
+            selDestino.value = 14;
+        }
+
+        // Ejecutar calculos iniciales
+        window.toggleUfMode();
+        window.calcularDistancia();
+    });
 
 </script>
+
 </body>
 </html>
