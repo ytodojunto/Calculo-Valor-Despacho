@@ -3,216 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Tarifaria Pilotaje - Río Paraná</title>
+    <title>Calculadora Pilotaje V2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding-top: 20px; }
-        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: none; }
-        .header-bg { background-color: #0d2e5c; color: white; }
-        .result-box { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 10px; }
-        .total-final { font-size: 1.5em; font-weight: bold; color: #0d2e5c; }
+        body { background-color: #f0f2f5; padding-top: 20px; padding-bottom: 40px;}
+        .card { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header-bg { background-color: #0d2e5c; color: white; border-radius: 5px 5px 0 0; padding: 15px;}
+        .section-title { color: #0d2e5c; border-bottom: 2px solid #dee2e6; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; font-weight: 600; }
+        .result-box { background-color: #ffffff; border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .total-final { font-size: 1.6em; font-weight: 800; color: #0d2e5c; }
+        .highlight { background-color: #e7f1ff; color: #0d2e5c; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container mb-5">
+<div class="container mb-5" style="max-width: 600px;">
     <div class="card">
-        <div class="card-header header-bg text-center">
-            <h4>Calculadora de Pilotaje</h4>
-            <small>Según Tarifa Multipar Enero 2021</small>
+        <div class="header-bg text-center">
+            <h4 class="m-0">Calculadora Pilotaje</h4>
+            <small>Tarifa Multipar 2021 - V2.0</small>
         </div>
         <div class="card-body">
             <form id="pilotajeForm">
                 
-                <h5 class="border-bottom pb-2 mb-3">1. Datos del Buque (para UF)</h5>
-                <div class="row g-3">
+                <h5 class="section-title">1. Buque (UF)</h5>
+                <div class="row g-2">
                     <div class="col-4">
-                        <label class="form-label">Eslora (m)</label>
-                        <input type="number" class="form-control" id="eslora" placeholder="0" required step="0.01">
+                        <label class="form-label small">Eslora (m)</label>
+                        <input type="number" class="form-control" id="eslora" placeholder="0" step="0.01">
                     </div>
                     <div class="col-4">
-                        <label class="form-label">Manga (m)</label>
-                        <input type="number" class="form-control" id="manga" placeholder="0" required step="0.01">
+                        <label class="form-label small">Manga (m)</label>
+                        <input type="number" class="form-control" id="manga" placeholder="0" step="0.01">
                     </div>
                     <div class="col-4">
-                        <label class="form-label">Puntal (m)</label>
-                        <input type="number" class="form-control" id="puntal" placeholder="0" required step="0.01">
+                        <label class="form-label small">Puntal (m)</label>
+                        <input type="number" class="form-control" id="puntal" placeholder="0" step="0.01">
                     </div>
                 </div>
-                <div class="alert alert-info mt-2 py-1">
-                    <small>UF Calculada: <span id="ufDisplay">0.00</span> (Mínimo aplica: 65 UF)</small>
+                <div class="mt-2 text-end">
+                    <small class="text-muted">UF Calc: <span id="ufRaw">0</span> | <strong>UF Final: <span id="ufDisplay">0.00</span></strong></small>
                 </div>
 
-                <h5 class="border-bottom pb-2 mb-3 mt-4">2. Datos del Viaje</h5>
+                <h5 class="section-title">2. Ruta y Distancia</h5>
                 
                 <div class="mb-3">
-                    <label class="form-label">Distancia (Kilómetros)</label>
-                    <input type="number" class="form-control" id="distancia" placeholder="Ingrese Kms de tabla" required step="0.1">
-                    <div class="form-text">Ingrese la distancia según tabla de distancias oficial.</div>
+                    <label class="form-label fw-bold">Vía de Navegación:</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="ruta" id="rutaMitre" value="mitre" checked onchange="calcularDistancia()">
+                        <label class="btn btn-outline-primary" for="rutaMitre">Emilio Mitre</label>
+                        
+                        <input type="radio" class="btn-check" name="ruta" id="rutaMartin" value="martin" onchange="calcularDistancia()">
+                        <label class="btn btn-outline-primary" for="rutaMartin">Martín García</label>
+                    </div>
+                    <div class="form-text text-center small mt-1" id="rutaMsg">Ruta estándar</div>
                 </div>
 
-                <div class="row g-3">
+                <div class="row g-2 mb-2">
                     <div class="col-6">
-                        <label class="form-label">Cantidad de Prácticos</label>
-                        <input type="number" class="form-control" id="cantPracticos" value="1" min="1" required>
+                        <label class="form-label small">Origen</label>
+                        <select class="form-select" id="puertoOrigen" onchange="calcularDistancia()">
+                            <option value="10">Recalada / Océano</option>
+                            <option value="52">Zona Común / La Plata</option>
+                            <option value="97">Campana</option>
+                            <option value="110">Zárate</option>
+                            <option value="132">Brazo Largo</option>
+                            <option value="171">Km 171</option>
+                            <option value="210">Ibicuy</option>
+                            <option value="273">San Pedro</option>
+                            <option value="325">Ramallo</option>
+                            <option value="344">San Nicolás</option>
+                            <option value="362">Villa Constitución</option>
+                            <option value="412">Rosario (Cargill/Alvear)</option>
+                            <option value="443" selected>San Lorenzo</option>
+                            <option value="460">Timbúes</option>
+                            <option value="465">Diamante</option>
+                            <option value="584">Santa Fe</option>
+                        </select>
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Demora (Horas)</label>
-                        <input type="number" class="form-control" id="demora" value="0" min="0" step="0.5">
+                        <label class="form-label small">Destino</label>
+                        <select class="form-select" id="puertoDestino" onchange="calcularDistancia()">
+                            <option value="10" selected>Recalada / Océano</option>
+                            <option value="52">Zona Común / La Plata</option>
+                            <option value="97">Campana</option>
+                            <option value="110">Zárate</option>
+                            <option value="132">Brazo Largo</option>
+                            <option value="171">Km 171</option>
+                            <option value="210">Ibicuy</option>
+                            <option value="273">San Pedro</option>
+                            <option value="325">Ramallo</option>
+                            <option value="344">San Nicolás</option>
+                            <option value="362">Villa Constitución</option>
+                            <option value="412">Rosario</option>
+                            <option value="443">San Lorenzo</option>
+                            <option value="460">Timbúes</option>
+                            <option value="465">Diamante</option>
+                            <option value="584">Santa Fe</option>
+                        </select>
                     </div>
                 </div>
-
-                <h5 class="border-bottom pb-2 mb-3 mt-4">3. Calado (Pies)</h5>
-                <div class="mb-3">
-                    <label class="form-label">Calado Máximo</label>
-                    <input type="number" class="form-control" id="calado" placeholder="Ej: 32.05" step="0.01" required>
-                    <div class="form-text text-danger" id="caladoMensaje"></div>
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Distancia (km)</span>
+                    <input type="number" class="form-control fw-bold" id="distancia" readonly>
                 </div>
 
-                <div class="form-check mt-3">
+                <h5 class="section-title">3. Detalles Operativos</h5>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label">Calado (Metros)</label>
+                        <input type="number" class="form-control" id="caladoMetros" placeholder="Ej: 9.80" step="0.01">
+                        <div class="form-text text-primary small" id="caladoPiesInfo">Equivale a: 0.00 pies</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Cant. Prácticos</label>
+                        <input type="number" class="form-control" id="cantPracticos" value="1" min="1">
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <label class="form-label">Demora (Horas)</label>
+                    <input type="number" class="form-control" id="demora" value="0" step="0.5">
+                </div>
+
+                <div class="form-check mt-3 mb-4">
                     <input class="form-check-input" type="checkbox" id="checkUruguay">
                     <label class="form-check-label" for="checkUruguay">
-                        Incluye Traslado a Puertos Uruguayos (+ USD 1800)
+                        Incluye Traslado Puertos Uruguayos (+USD 1800)
                     </label>
                 </div>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button type="button" class="btn btn-primary btn-lg" onclick="calcularTarifa()">CALCULAR PRECIO</button>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary btn-lg header-bg" onclick="calcularTarifa()">CALCULAR TOTAL</button>
                 </div>
             </form>
 
-            <div id="resultados" class="mt-4 d-none">
-                <h5 class="border-bottom pb-2">Detalle de Liquidación (USD)</h5>
+            <div id="resultados" class="result-box d-none">
+                <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Desglose de Facturación</h6>
                 
-                <div class="result-box">
-                    <div class="d-flex justify-content-between">
-                        <span>Comp. Fiscal (CF x UF x Prácticos):</span>
-                        <span id="resFiscal">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Comp. Recorrido (CR x Km x Prácticos):</span>
-                        <span id="resRecorrido">0.00</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between fw-bold">
-                        <span>SUBTOTAL BÁSICO:</span>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Componente Fiscal:</span>
+                    <span class="fw-bold" id="resFiscal">0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Componente Recorrido:</span>
+                    <span class="fw-bold" id="resRecorrido">0.00</span>
+                </div>
+                
+                <div class="border-top border-bottom py-2 my-2 bg-light">
+                    <div class="d-flex justify-content-between fw-bold text-dark">
+                        <span>BÁSICO PILOTAJE:</span>
                         <span id="resBasico">0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between text-danger">
-                        <span>Recargo por Calado (<span id="txtPorcentaje">0</span>%):</span>
-                        <span id="resCalado">0.00</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <span>Demora (<span id="txtHorasDemora">0</span> hs):</span>
-                        <span id="resDemora">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Gastos Traslados (x <span id="txtCantPracticos">1</span>):</span>
-                        <span id="resGastos">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between" id="rowUruguay">
-                        <span>Adicional Uruguay:</span>
-                        <span id="resUruguay">0.00</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between total-final">
-                        <span>TOTAL A FACTURAR:</span>
-                        <span>USD <span id="resTotal">0.00</span></span>
-                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-1 text-danger">
+                    <span>+ Recargo Calado (<span id="txtPorcentaje">0</span>%):</span>
+                    <span id="resCalado">0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>+ Demora (<span id="txtHorasDemora">0</span> hs):</span>
+                    <span id="resDemora">0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>+ Gastos Fijos (x<span id="txtCantPracticos">1</span>):</span>
+                    <span id="resGastos">0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1" id="rowUruguay">
+                    <span>+ Adicional Uruguay:</span>
+                    <span id="resUruguay">0.00</span>
+                </div>
+
+                <hr>
+                <div class="d-flex justify-content-between total-final mt-3">
+                    <span>TOTAL:</span>
+                    <span>USD <span id="resTotal">0.00</span></span>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    function calcularTarifa() {
-        // 1. CONSTANTES SEGUN PDF
-        const COEF_FISCAL = 8;      // [cite: 16]
-        const COEF_RECORRIDO = 12;  // [cite: 19]
-        const MIN_UF = 65;          // 
-        const GASTO_TRASLADO = 1900; // 
-        const GASTO_ORDENANZA = 1900; // 
-        const COSTO_DEMORA = 150;   // 
-        const ADICIONAL_URUGUAY = 1800; // 
+    // CONSTANTES
+    const FACTOR_METROS_A_PIES = 3.28084;
+    const EXTRA_KM_MARTIN_GARCIA = 35.6; // Diferencia aprox Recalada-Km171 via MG vs Mitre
+    
+    // LISTENERS PARA ACTUALIZAR INFO EN TIEMPO REAL
+    document.getElementById('caladoMetros').addEventListener('input', function() {
+        let m = parseFloat(this.value) || 0;
+        let ft = m * FACTOR_METROS_A_PIES;
+        document.getElementById('caladoPiesInfo').innerText = `Equivale a: ${ft.toFixed(2)} pies`;
+    });
 
-        // 2. OBTENER VALORES DEL FORMULARIO
+    // FUNCION CALCULAR DISTANCIA AUTOMATICA
+    function calcularDistancia() {
+        let kmOrigen = parseFloat(document.getElementById('puertoOrigen').value);
+        let kmDestino = parseFloat(document.getElementById('puertoDestino').value);
+        let ruta = document.querySelector('input[name="ruta"]:checked').value;
+        
+        // Distancia base (valor absoluto de la diferencia de KMs)
+        let distancia = Math.abs(kmOrigen - kmDestino);
+        
+        // Logica Martin Garcia:
+        // Si la ruta es Martin Garcia Y el viaje conecta el Oceano (Recalada/Zona Comun) con el Río arriba
+        // Se suma la diferencia de recorrido.
+        let esTramoRioMar = (kmOrigen < 60 || kmDestino < 60) && (kmOrigen > 100 || kmDestino > 100);
+        
+        if (ruta === 'martin' && esTramoRioMar) {
+            distancia += EXTRA_KM_MARTIN_GARCIA;
+            document.getElementById('rutaMsg').innerText = "Se añaden +35.6 km por vuelta Martín García";
+            document.getElementById('rutaMsg').className = "form-text text-center small mt-1 text-danger fw-bold";
+        } else {
+            document.getElementById('rutaMsg').innerText = "Ruta Estándar (Mitre)";
+            document.getElementById('rutaMsg').className = "form-text text-center small mt-1 text-muted";
+        }
+
+        document.getElementById('distancia').value = distancia.toFixed(1);
+    }
+
+    // CALCULO PRINCIPAL
+    function calcularTarifa() {
+        // 1. Constantes Tarifa
+        const COEF_FISCAL = 8;
+        const COEF_RECORRIDO = 12;
+        const MIN_UF = 65;
+        const GASTO_FIJO_POR_PRACTICO = 1900 + 1900; // Traslado + Ordenanza
+        const COSTO_DEMORA = 150;
+        const ADICIONAL_URUGUAY = 1800;
+
+        // 2. Obtener valores
         let eslora = parseFloat(document.getElementById('eslora').value) || 0;
         let manga = parseFloat(document.getElementById('manga').value) || 0;
         let puntal = parseFloat(document.getElementById('puntal').value) || 0;
-        let km = parseFloat(document.getElementById('distancia').value) || 0;
         let practicos = parseInt(document.getElementById('cantPracticos').value) || 1;
         let demoraHs = parseFloat(document.getElementById('demora').value) || 0;
-        let calado = parseFloat(document.getElementById('calado').value) || 0;
+        let caladoM = parseFloat(document.getElementById('caladoMetros').value) || 0;
         let isUruguay = document.getElementById('checkUruguay').checked;
+        
+        // Asegurar que la distancia esté actualizada
+        calcularDistancia();
+        let km = parseFloat(document.getElementById('distancia').value) || 0;
 
-        // 3. CALCULO DE UNIDAD FISCAL (UF)
-        // UF: Unidades Fiscales = Eslora x Manga x Puntal / 800 
-        let ufCalculada = (eslora * manga * puntal) / 800;
-        
-        // Aplicar mínimo de 65 UF 
-        let ufFinal = Math.max(ufCalculada, MIN_UF);
-        
+        // 3. UF
+        let ufCalc = (eslora * manga * puntal) / 800;
+        let ufFinal = Math.max(ufCalc, MIN_UF);
+        document.getElementById('ufRaw').innerText = ufCalc.toFixed(2);
         document.getElementById('ufDisplay').innerText = ufFinal.toFixed(2);
 
-        // 4. CALCULO DE COMPONENTES BASICOS
-        // [(CF* UF) * N° De Prácticos] [cite: 12]
-        let componenteFiscal = (COEF_FISCAL * ufFinal) * practicos;
+        // 4. Componentes Básicos
+        let compFiscal = (COEF_FISCAL * ufFinal) * practicos;
+        let compRecorrido = (COEF_RECORRIDO * km) * practicos;
+        let subtotal = compFiscal + compRecorrido;
 
-        // [(CR * KMS Recorridos) * N° De Prácticos] [cite: 12]
-        let componenteRecorrido = (COEF_RECORRIDO * km) * practicos;
+        // 5. Recargo Calado (Convertir Metros a Pies)
+        let caladoPies = caladoM * FACTOR_METROS_A_PIES;
+        let pctCalado = 0;
+        
+        if (caladoPies <= 28) pctCalado = 0;
+        else if (caladoPies <= 30) pctCalado = 0.075;
+        else if (caladoPies <= 32) pctCalado = 0.15;
+        else if (caladoPies <= 34) pctCalado = 0.225;
+        else pctCalado = 0.30;
 
-        let subtotalBasico = componenteFiscal + componenteRecorrido;
+        let costoCalado = subtotal * pctCalado;
 
-        // 5. CALCULO DE RECARGO POR CALADO
-        // Tabla según 
-        let porcentajeCalado = 0;
-        if (calado <= 28) {
-            porcentajeCalado = 0;
-        } else if (calado > 28 && calado <= 30) {
-            porcentajeCalado = 0.075; // 7.5%
-        } else if (calado > 30 && calado <= 32) {
-            porcentajeCalado = 0.15;  // 15.0%
-        } else if (calado > 32 && calado <= 34) {
-            porcentajeCalado = 0.225; // 22.5%
-        } else if (calado > 34) {
-            porcentajeCalado = 0.30;  // 30.0%
-        }
-
-        let costoCalado = subtotalBasico * porcentajeCalado;
-
-        // 6. COSTOS FIJOS Y DEMORA
+        // 6. Otros costos
         let costoDemora = demoraHs * COSTO_DEMORA;
-        
-        // Gastos: (Traslado + Ordenanza) * N° Practicos 
-        let gastosFijos = (GASTO_TRASLADO + GASTO_ORDENANZA) * practicos;
-        
+        let gastos = GASTO_FIJO_POR_PRACTICO * practicos;
         let costoUruguay = isUruguay ? ADICIONAL_URUGUAY : 0;
 
-        // 7. TOTAL FINAL
-        let total = subtotalBasico + costoCalado + costoDemora + gastosFijos + costoUruguay;
+        let total = subtotal + costoCalado + costoDemora + gastos + costoUruguay;
 
-        // 8. MOSTRAR RESULTADOS
-        document.getElementById('resFiscal').innerText = componenteFiscal.toFixed(2);
-        document.getElementById('resRecorrido').innerText = componenteRecorrido.toFixed(2);
-        document.getElementById('resBasico').innerText = subtotalBasico.toFixed(2);
+        // 7. Render
+        document.getElementById('resFiscal').innerText = compFiscal.toFixed(2);
+        document.getElementById('resRecorrido').innerText = compRecorrido.toFixed(2);
+        document.getElementById('resBasico').innerText = subtotal.toFixed(2);
         
-        document.getElementById('txtPorcentaje').innerText = (porcentajeCalado * 100).toFixed(1);
+        document.getElementById('txtPorcentaje').innerText = (pctCalado * 100).toFixed(1);
         document.getElementById('resCalado').innerText = costoCalado.toFixed(2);
         
         document.getElementById('txtHorasDemora').innerText = demoraHs;
         document.getElementById('resDemora').innerText = costoDemora.toFixed(2);
         
         document.getElementById('txtCantPracticos').innerText = practicos;
-        document.getElementById('resGastos').innerText = gastosFijos.toFixed(2);
+        document.getElementById('resGastos').innerText = gastos.toFixed(2);
         
         document.getElementById('resUruguay').innerText = costoUruguay.toFixed(2);
+        
         document.getElementById('resTotal').innerText = total.toFixed(2);
-
         document.getElementById('resultados').classList.remove('d-none');
+        
+        // Scroll hacia resultados
+        document.getElementById('resultados').scrollIntoView({behavior: 'smooth'});
     }
+    
+    // Inicializar distancia al cargar
+    window.onload = calcularDistancia;
 </script>
 
 </body>
