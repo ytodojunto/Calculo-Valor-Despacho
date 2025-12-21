@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Pilotaje 2024</title>
+    <title>Calculadora Pilotaje V17</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; padding: 20px; font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
         .main-card { max-width: 800px; margin: 0 auto; border: none; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: white; overflow: hidden; }
         
-        /* Header Institucional */
+        /* Header */
         .header-bg { background: linear-gradient(135deg, #8B0000 0%, #a71d2a 100%); color: white; padding: 20px; text-align: center; }
         .badge-tarif { background: #ffc107; color: #000; padding: 4px 12px; border-radius: 4px; font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; display: inline-block; margin-top: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
         .section-title { color: #8B0000; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #eee; margin: 25px 0 15px 0; font-size: 0.9rem; }
         
-        /* Botones Selección */
+        /* Botones */
         .btn-mode { border: 2px solid #e9ecef; border-radius: 10px; padding: 12px; width: 100%; text-align: center; cursor: pointer; transition: 0.2s; background: white; color: #555; }
         .btn-mode:hover { background: #fff5f5; border-color: #8B0000; }
         .btn-mode.active { background: #8B0000; color: white; border-color: #8B0000; box-shadow: 0 4px 12px rgba(139, 0, 0, 0.2); }
@@ -24,11 +24,11 @@
         .dist-display { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; text-align: right; }
         .dist-val { font-size: 2rem; font-weight: 800; color: #8B0000; line-height: 1; }
 
-        /* Boton Principal */
+        /* Boton */
         .btn-calc { background: #8B0000; color: white; border: none; width: 100%; padding: 16px; border-radius: 10px; font-size: 1.2rem; font-weight: 800; margin-top: 30px; transition: 0.2s; }
         .btn-calc:hover { background: #6b0000; }
 
-        /* Panel Resultados */
+        /* Resultados */
         .result-panel { background: white; border: 1px solid #e5e7eb; border-left: 8px solid #8B0000; padding: 0; border-radius: 8px; margin-top: 30px; display: none; overflow: hidden; }
         .res-header { background: #f8f9fa; padding: 15px 25px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #555; }
         .res-body { padding: 20px 25px; }
@@ -40,6 +40,9 @@
         .final-row { background: #8B0000; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
         .final-label { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; }
         .final-price { font-size: 2rem; font-weight: 800; }
+
+        /* Footer Version */
+        .app-version { text-align: center; margin-top: 20px; color: #6c757d; font-size: 0.8rem; font-weight: bold; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -135,16 +138,16 @@
             <div class="res-body">
                 <small class="text-muted fw-bold text-uppercase">A. Servicios de Pilotaje</small>
                 <div class="d-flex justify-content-between mb-1 mt-2">
-                    <span>Fiscal (<span id="rUF">0</span> UF):</span> <span>USD <span id="rFiscal">0.00</span></span>
+                    <span>Fiscal (<span id="rUF">0</span> UF x <span id="rPracA">1</span> pr):</span> <span>USD <span id="rFiscal">0.00</span></span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                    <span>Recorrido (<span id="rKM">0</span> km):</span> <span>USD <span id="rRecorrido">0.00</span></span>
+                    <span>Recorrido (<span id="rKM">0</span> km x <span id="rPracB">1</span> pr):</span> <span>USD <span id="rRecorrido">0.00</span></span>
                 </div>
                 <div class="d-flex justify-content-between mb-1 text-danger">
                     <span>Recargo Calado (<span id="rPct">0</span>%):</span> <span>USD <span id="rCalado">0.00</span></span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                    <span>Demora:</span> <span>USD <span id="rDemora">0.00</span></span>
+                    <span>Demora (<span id="rHorasDemora">0</span> hs x <span id="rPracDemora">1</span> pr):</span> <span>USD <span id="rDemora">0.00</span></span>
                 </div>
                 
                 <div class="subtotal-row">
@@ -154,7 +157,7 @@
 
                 <small class="text-muted fw-bold text-uppercase d-block mt-4">B. Posicionamiento (Gastos)</small>
                 <div class="d-flex justify-content-between mb-1 mt-2">
-                    <span>Traslados/Ordenanza:</span> <span>USD <span id="rGastos">0.00</span></span>
+                    <span>Traslados/Ordenanza (x<span id="rPracGastos">1</span>):</span> <span>USD <span id="rGastos">0.00</span></span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                     <span>Adic. Uruguay:</span> <span>USD <span id="rUru">0.00</span></span>
@@ -174,6 +177,8 @@
 
     </div>
 </div>
+
+<div class="app-version">Versión 17.0 (Actualizada) - Matriz 2024</div>
 
 <script>
     // --- DATOS TABLA ---
@@ -296,12 +301,13 @@
             else if(pies > 34) pct = 0.30;
             var cCalado = subServBase * pct;
 
-            // Demora
-            var cDemora = demora * 150;
+            // Demora (CORREGIDO: SE PAGA POR PRACTICO)
+            var cDemora = demora * 150 * practicos;
 
             var totalServicios = subServBase + cCalado + cDemora;
 
             // --- B. POSICIONAMIENTO ---
+            // Gastos (CORREGIDO: SE PAGA POR PRACTICO)
             var cGastos = 4980 * practicos; 
             var cUru = esUru ? 2500 : 0;
             
@@ -312,11 +318,17 @@
 
             // RENDER
             document.getElementById("rUF").innerText = uf;
+            document.getElementById("rPracA").innerText = practicos;
+            document.getElementById("rPracB").innerText = practicos;
+            document.getElementById("rPracDemora").innerText = practicos;
+            document.getElementById("rPracGastos").innerText = practicos;
+
             document.getElementById("rKM").innerText = dist.toFixed(1);
             document.getElementById("rFiscal").innerText = cFiscal.toFixed(2);
             document.getElementById("rRecorrido").innerText = cRecorrido.toFixed(2);
             document.getElementById("rPct").innerText = (pct*100).toFixed(1);
             document.getElementById("rCalado").innerText = cCalado.toFixed(2);
+            document.getElementById("rHorasDemora").innerText = demora;
             document.getElementById("rDemora").innerText = cDemora.toFixed(2);
             
             document.getElementById("totalServicio").innerText = totalServicios.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
